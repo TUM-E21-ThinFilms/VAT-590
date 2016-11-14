@@ -17,7 +17,7 @@ import time
 
 from math import log10
 from slave.driver import Driver, Command
-from slave.types import Integer, String, Register, Enum, Mapping, Float, Range, Register, Percent, BitSequence
+from slave.types import Integer, String, Mapping, Percent, BitSequence
 from protocol import VAT590Protocol
 from constants import *
 
@@ -76,20 +76,6 @@ class VAT590Driver(Driver):
         self._sensor_offset = 0.04
 
         # Commands:
-
-        self.assembly = Command(
-            ('i:76',
-             BitSequence([
-                 (6, Percent(self._position_range, 6)),  # Position
-                 (1, Mapping(PRESSURE_READING)),  # Pressure reading
-                 (7, String()),  # Pressure
-                 (1, Mapping(OPERATION_MODE)),  # Operation mode
-                 (1, Mapping(STATUS)),  # Status
-                 (1, Mapping(WARNING))  # Warning
-             ])
-             )
-        )
-
         self._pressure = Command(
             'P:',
             'S:',
@@ -243,6 +229,27 @@ class VAT590Driver(Driver):
         )
 
     # Properties:
+
+    def __query(self, cmd):
+        return cmd.query(self._transport, self._protocol)
+
+    def get_assembly(self):
+        return self.__query(Command(
+            ('i:76',
+             BitSequence([
+                 (6, Percent(self._position_range, 6)),  # Position
+                 (1, Mapping(PRESSURE_READING)),  # Pressure reading
+                 (7, String()),  # Pressure
+                 (1, Mapping(OPERATION_MODE)),  # Operation mode
+                 (1, Mapping(STATUS)),  # Status
+                 (1, Mapping(WARNING))  # Warning
+             ]))))
+
+    def get_pressure(self):
+        return self.__query(Command(
+            'P:',
+            'S:',
+            String))
 
     @property
     def speed(self):

@@ -31,7 +31,7 @@ class VAT590Factory:
         logger.addHandler(fh)
         return logger
 
-    def create_sputter(self, device='/dev/ttyUSB5', logger=None):
+    def create_valve(self, device='/dev/ttyUSB5', logger=None):
         if logger is None:
             logger = self.get_logger()
 

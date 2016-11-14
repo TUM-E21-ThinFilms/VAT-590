@@ -234,8 +234,7 @@ class VAT590Driver(Driver):
         return cmd.query(self._transport, self._protocol)
 
     def get_assembly(self):
-        return self.__query(Command(
-            ('i:76',
+        return self.__query(Command('i:76', 'i:76',
              BitSequence([
                  (6, Percent(self._position_range, 6)),  # Position
                  (1, Mapping(PRESSURE_READING)),  # Pressure reading
@@ -243,17 +242,25 @@ class VAT590Driver(Driver):
                  (1, Mapping(OPERATION_MODE)),  # Operation mode
                  (1, Mapping(STATUS)),  # Status
                  (1, Mapping(WARNING))  # Warning
-             ]))))
+             ])))
 
     def get_pressure(self):
-        return self.__query(Command(
-            'P:',
-            'S:',
-            String))
+        return self.__query(Command('P:', 'S:', String))
 
-    @property
-    def speed(self):
-        return float(self._speed) / 10
+    def get_speed(self):
+        return self.__query(Command('i:68', 'V:', String))
+
+    def get_range_configuration(self):
+        return self.__query(Command('i:21', 's:21',
+            BitSequence([
+                (1, String()),  # Position range
+                (7, String()),  # Pressure range
+            ])
+        ))
+
+#    @property
+#    def speed(self):
+#        return float(self._speed) / 10
 
     @speed.setter
     def speed(self, value):

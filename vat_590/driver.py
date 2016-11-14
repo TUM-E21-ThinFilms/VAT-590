@@ -295,10 +295,10 @@ class VAT590Driver(Driver):
         volt = str(
             6.8 + 0.6 * log10(value) - self._sensor_offset)  # Spannungs-Wert aus Druckeingabe berechnen, mit Offset
         volt = volt.replace('.', '')  # Remove the dot
-        volt = ('{0:0<6}').format(volt)  # von rechts auffüllen
-        volt = volt[:int(len(str(int(self._pressure_range))) - 1)]  # abschneiden, dabei Präzision berücksichtigen
-        volt = '00' + ('{0:0>6}').format(volt)  # von links auffüllen
-        self._pressure = volt  # Wert übergeben
+        volt = ('{0:0<6}').format(volt)  # von rechts auffuellen
+        volt = volt[:int(len(str(int(self._pressure_range))) - 1)]  # abschneiden, dabei Praezision beruecksichtigen
+        volt = '00' + ('{0:0>6}').format(volt)  # von links auffuellen
+        self._pressure = volt  # Wert uebergeben
         print ('Pressure set to ' + str(value) + ' mbar.')
 
     # Functions:

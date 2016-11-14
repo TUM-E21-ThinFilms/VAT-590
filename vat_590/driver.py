@@ -27,7 +27,8 @@ class VAT590Driver(Driver):
     .. note::
         The valve needs carriage return and linefeed character as message terminator. Using delay between read and write operations is recommended as well.
 
-        Internal variables starting with "_" expect and provide String codes (VAT control commands). Variables with the same names but without "_" expect and provide readable information. (Realized by properties and property setters)
+        Internal variables starting with "_" expect and provide String codes (VAT control commands).
+        Variables with the same names but without "_" expect and provide readable information. (Realized by properties and property setters)
 
 
     :param transport: A transport object.

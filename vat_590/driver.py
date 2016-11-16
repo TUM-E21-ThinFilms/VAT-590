@@ -17,7 +17,7 @@ import time
 
 from math import log10
 from slave.driver import Driver, Command
-from slave.types import Integer, String, Mapping, Percent, BitSequence
+from slave.types import Integer, String, Mapping, BitSequence
 from protocol import VAT590Protocol
 from constants import *
 
@@ -83,54 +83,9 @@ class VAT590Driver(Driver):
 
         # Range configuration:
 
-        #self._position_range = '2'  # Position Range: 0: <= 1000, 1: <=10 000, 2: <= 100 000
-        #self._pressure_range = '1000000'
-        #self._sensor_offset = 0.04
-
-        # Commands:
-
-        self.throttle_cycles = Command(
-            ('i:70',
-             Integer)
-        )
-
-        self.isolation_cycles = Command(
-            ('i:71',
-             Integer)
-        )
-
-        self.power_up_counter = Command(
-            ('i:72',
-             Integer)
-        )
-
-        self.hardware_config = Command(  #####
-            ('i:80',
-             String()
-             #           BitSequence([
-             #                (1, Mapping(POWER_FAILURE_OPTION)),
-             #                (1, Mapping(SENSOR_POWER_SUPPLY)),
-             #                (1, Mapping(RS232_INTERFACE_ANALOG)),
-             #                (1, Mapping(SENSOR_VERSION)),
-             #                (4, String) # reserved
-             #                ])
-             )
-        )
-
-        self.firmware_config = Command(
-            ('i:82',
-             String)
-        )
-
-        self.firmware_number = Command(
-            ('i:84',
-             String)
-        )
-
-        self.identification = Command(
-            ('i:83',
-             String)
-        )
+        # self._position_range = '2'  # Position Range: 0: <= 1000, 1: <=10 000, 2: <= 100 000
+        # self._pressure_range = '1000000'
+        # self._sensor_offset = 0.04
 
         self.PID_controller = Command(
             'i:02',
@@ -152,12 +107,6 @@ class VAT590Driver(Driver):
                 (1, Mapping(DIGITAL_INPUT)),  # Digital input CLOSED valve
                 (1, Mapping({'Reserved': '0'}))
             ])
-        )
-
-        self.position_limit = Command(  # kann sein dass hier Leerzeichen auftreten... # FUNKTIONIERT NICHT!!!
-            'a101A:',
-            'a101A:',
-            String()  # 0 - 100 000
         )
 
         self.__device_status = Command(('i:30', BitSequence([
@@ -210,6 +159,9 @@ class VAT590Driver(Driver):
         self.__speed = Command('i:68', 'V:', String)
         self.__pressure = Command('P:', 'S:', String)
         self.__position = Command('A:', 'R:', String)
+        self.__identification = Command(('i:83', String))
+        self.__firmware_number = Command(('i:84', String))
+        self.__firmware_config = Command(('i:82', String))
 
         # write only commands
         self.__hold = ('H:', String)
@@ -220,6 +172,15 @@ class VAT590Driver(Driver):
 
     def __query(self, cmd):
         return cmd.query(self._transport, self._protocol)
+
+    def get_firmware_configuration(self):
+        return self.__query(self.__firmware_config)
+
+    def get_firmware_number(self):
+        self.__query(self.__firmware_number)
+
+    def get_identification(self):
+        return self.__query(self.__identification)
 
     def get_assembly(self):
         return self.__query(self.__assembly)
@@ -288,9 +249,6 @@ class VAT590Driver(Driver):
         self._write(self.__close)
 
     def open(self):
-        # if self.pressure < 100:
-        #    raise ValueError('Chamber is evacuated, do not open the leak valve!')
-
         self._write(self.__open)
 
     def set_access(self, mode):

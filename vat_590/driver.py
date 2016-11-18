@@ -70,7 +70,7 @@ class VAT590Driver(object):
     RANGE_POSITION_10000 = '1'
     RANGE_POSITION_100000 = '2'
 
-    def _init_(self, transport, protocol=None):
+    def __init__(self, transport, protocol=None):
 
         if protocol is None:
             protocol = VAT590Protocol()

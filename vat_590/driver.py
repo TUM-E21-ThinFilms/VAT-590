@@ -222,7 +222,7 @@ class VAT590Driver(Driver):
         return int(self.__query(self.__sensor_reading))
 
     def get_pressure(self):
-        return self.__query(self.__pressure)
+        return int(self.__query(self.__pressure))
 
     def set_pressure(self, setpoint):
         if not isinstance(setpoint, (int, long)):
@@ -258,7 +258,7 @@ class VAT590Driver(Driver):
         self._write(self.__access_mode, mode)
 
     def get_speed(self):
-        return self.__query(self.__speed)
+        return int(self.__query(self.__speed))
 
     def set_speed(self, speed):
         if not isinstance(speed, (int, long)) or speed >= 10000:
@@ -274,6 +274,26 @@ class VAT590Driver(Driver):
 
     def get_range_configuration(self):
         return self.__query(self.__range_config)
+
+    def convert_from_range_configuration(self, range):
+        if range is self.RANGE_POSITION_1000:
+            return 1000
+        elif range is self.RANGE_POSITION_10000:
+            return 10000
+        elif range is self.RANGE_POSITION_100000:
+            return 100000
+        else:
+            raise ValueError("given range is not supported")
+
+    def convert_to_range_configuration(self, range):
+        if range is 1000:
+            return self.RANGE_POSITION_1000
+        elif range is 10000:
+            return self.RANGE_POSITION_10000
+        elif range is 100000:
+            return self.RANGE_POSITION_100000
+        else:
+            raise ValueError("given range is not supported")
 
     def set_range_configuration(self, position_range, pressure_range):
         if not position_range in [self.RANGE_POSITION_1000, self.RANGE_POSITION_10000, self.RANGE_POSITION_100000]:

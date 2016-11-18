@@ -13,14 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import time
-
-from math import log10
 from slave.driver import Driver, Command
 from slave.types import Integer, String, Mapping, BitSequence
 from protocol import VAT590Protocol
 from constants import *
-
 
 class VAT590Driver(Driver):
     """ The Control Programme for the VAT Valve Series 590
@@ -41,7 +37,7 @@ class VAT590Driver(Driver):
     :ivar device_status: Returns the operation mode, status, power failure option and operation.
     :ivar warnings: Returns warnings.
     :ivar error_status: Return the error status.
-    :ivar fatal_error_query: Returns fatal errors if there are some.
+    :ivar fatal_error_query_cmd: Returns fatal errors if there are some.
     :ivar throttle_cycles: Returns the number of throttle cycles.
     :ivar power_up_counter: Returns the number of control unit power ups.
     :ivar firmware_configuration: Returns the firmware version of the device.
@@ -170,38 +166,38 @@ class VAT590Driver(Driver):
         self.__open = ('O:', String)
         self.__access_mode = ('c:01', String)
 
-    def __query(self, cmd):
+    def _query_cmd(self, cmd):
         if not isinstance(cmd, Command):
             raise TypeError("Can only query on Command")
-        
+
         return cmd.query(self._transport, self._protocol)
 
     def get_firmware_configuration(self):
-        return self.__query(self.__firmware_config)
+        return self._query_cmd(self.__firmware_config)
 
     def get_firmware_number(self):
-        self.__query(self.__firmware_number)
+        self._query_cmd(self.__firmware_number)
 
     def get_identification(self):
-        return self.__query(self.__identification)
+        return self._query_cmd(self.__identification)
 
     def get_assembly(self):
-        return self.__query(self.__assembly)
+        return self._query_cmd(self.__assembly)
 
     def get_device_status(self):
-        return self.__query(self.__device_status)
+        return self._query_cmd(self.__device_status)
 
     def get_warnings(self):
-        return self.__query(self.__warnings)
+        return self._query_cmd(self.__warnings)
 
     def get_errors(self):
-        return self.__query(self.__errors)
+        return self._query_cmd(self.__errors)
 
     def get_position(self):
-        return self.__query(self.__position)
+        return self._query_cmd(self.__position)
 
     def get_valve_configuration(self):
-        return self.__query(self.__valve_configiguration)
+        return self._query_cmd(self.__valve_configiguration)
 
     # Warning: Read the documents for the valve, in order to send
     # a correct configuration!
@@ -219,13 +215,13 @@ class VAT590Driver(Driver):
         self._write(self.__position, str(setpoint).zfill(6))
 
     def get_sensor_offset(self):
-        return int(self.__query(self.__sensor_offset))
+        return int(self._query_cmd(self.__sensor_offset))
 
     def get_sensor_reading(self):
-        return int(self.__query(self.__sensor_reading))
+        return int(self._query_cmd(self.__sensor_reading))
 
     def get_pressure(self):
-        return int(self.__query(self.__pressure))
+        return int(self._query_cmd(self.__pressure))
 
     def set_pressure(self, setpoint):
         if not isinstance(setpoint, (int, long)):
@@ -261,7 +257,7 @@ class VAT590Driver(Driver):
         self._write(self.__access_mode, mode)
 
     def get_speed(self):
-        return int(self.__query(self.__speed))
+        return int(self._query_cmd(self.__speed))
 
     def set_speed(self, speed):
         if not isinstance(speed, (int, long)) or speed >= 10000:
@@ -276,7 +272,7 @@ class VAT590Driver(Driver):
         return self.get_range_configuration()[0]
 
     def get_range_configuration(self):
-        return self.__query(self.__range_config)
+        return self._query_cmd(self.__range_config)
 
     def convert_from_range_configuration(self, range):
         if range is self.RANGE_POSITION_1000:

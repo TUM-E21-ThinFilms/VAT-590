@@ -171,6 +171,9 @@ class VAT590Driver(Driver):
         self.__access_mode = ('c:01', String)
 
     def __query(self, cmd):
+        if not isinstance(cmd, Command):
+            raise TypeError("Can only query on Command")
+        
         return cmd.query(self._transport, self._protocol)
 
     def get_firmware_configuration(self):

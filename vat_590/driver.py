@@ -70,12 +70,12 @@ class VAT590Driver(Driver):
     RANGE_POSITION_10000 = '1'
     RANGE_POSITION_100000 = '2'
 
-    def __init__(self, transport, protocol=None):
+    def _init_(self, transport, protocol=None):
 
         if protocol is None:
             protocol = VAT590Protocol()
 
-        super(VAT590Driver, self).__init__(transport, protocol)
+        super(VAT590Driver, self)._init_(transport, protocol)
 
         # Range configuration:
 
@@ -105,14 +105,14 @@ class VAT590Driver(Driver):
             ])
         )
 
-        self.__device_status = Command(('i:30', BitSequence([
+        self._device_status = Command(('i:30', BitSequence([
             (1, Mapping(OPERATION_MODE)),  # Operation mode
             (1, Mapping(STATUS)),  # Status
             (1, Mapping(POWER_FAILURE_BATTERY)),  # Power failure option
             (1, Mapping(OPERATION))  # Operation
         ])))
 
-        self.__assembly = Command('i:76', 'i:76', BitSequence([
+        self._assembly = Command('i:76', 'i:76', BitSequence([
             (6, String),  # Position
             (1, Mapping(PRESSURE_READING)),  # Pressure reading
             (7, String()),  # Pressure
@@ -121,14 +121,14 @@ class VAT590Driver(Driver):
             (1, Mapping(WARNING))  # Warning
         ]))
 
-        self.__warnings = Command(('i:51', BitSequence([
+        self._warnings = Command(('i:51', BitSequence([
             (1, Mapping(SERVICE)),  # Service
             (1, Mapping(LEARN_DATA)),  # Learn data set
             (1, Mapping(POWER_FAILURE_BATTERY)),  # Power failure battery
             (1, Mapping(COMPRESSED_AIR_SUPPLY))  # Compressed air supply
         ])))
 
-        self.__valve_configiguration = Command('i:04', 's:04', BitSequence([
+        self._valve_configiguration = Command('i:04', 's:04', BitSequence([
             (1, Mapping(CLOSE_OPEN)),  # VALVE_POWER_UP
             (1, Mapping(CLOSE_OPEN)),  # VALVE_POWER_FAILURE
             (1, Mapping(NO_YES)),  # EXTERNAL_ISOLATION_VALVE_FUNCTION
@@ -139,32 +139,32 @@ class VAT590Driver(Driver):
             (1, Mapping(SYNCHRONIZATION_MODE)),
         ]))
 
-        self.__errors = Command(('i:50', Mapping({
+        self._errors = Command(('i:50', Mapping({
             'No errors': '00000000',
             'Sensor 1 signal converter failure.': '01000000',
             'Firmware memory failure.': '00010000'
         })))
 
-        self.__range_config = Command('i:21', 's:21', BitSequence([
+        self._range_config = Command('i:21', 's:21', BitSequence([
             (1, String()),  # Position range
             (7, String()),  # Pressure range
         ]))
 
-        self.__sensor_reading = Command('i64', 'i64', String)
-        self.__sensor_offset = Command('i:60', 'i60', String)
-        self.__speed = Command('i:68', 'V:', String)
-        self.__pressure = Command('P:', 'S:', String)
-        self.__position = Command('A:', 'R:', String)
-        self.__identification = Command(('i:83', String))
-        self.__firmware_number = Command(('i:84', String))
-        self.__firmware_config = Command(('i:82', String))
+        self._sensor_reading = Command('i64', 'i64', String)
+        self._sensor_offset = Command('i:60', 'i60', String)
+        self._speed = Command('i:68', 'V:', String)
+        self._pressure = Command('P:', 'S:', String)
+        self._position = Command('A:', 'R:', String)
+        self._identification = Command(('i:83', String))
+        self._firmware_number = Command(('i:84', String))
+        self._firmware_config = Command(('i:82', String))
 
         # write only commands
-        self.__hold = ('H:', String)
-        self.__reset = ('c:82', String)
-        self.__close = ('C:', String)
-        self.__open = ('O:', String)
-        self.__access_mode = ('c:01', String)
+        self._hold = ('H:', String)
+        self._reset = ('c:82', String)
+        self._close = ('C:', String)
+        self._open = ('O:', String)
+        self._access_mode = ('c:01', String)
 
     def _query_cmd(self, cmd):
         if not isinstance(cmd, Command):
@@ -173,37 +173,37 @@ class VAT590Driver(Driver):
         return cmd.query(self._transport, self._protocol)
 
     def get_firmware_configuration(self):
-        return self._query_cmd(self.__firmware_config)
+        return self._query_cmd(self._firmware_config)
 
     def get_firmware_number(self):
-        self._query_cmd(self.__firmware_number)
+        self._query_cmd(self._firmware_number)
 
     def get_identification(self):
-        return self._query_cmd(self.__identification)
+        return self._query_cmd(self._identification)
 
     def get_assembly(self):
-        return self._query_cmd(self.__assembly)
+        return self._query_cmd(self._assembly)
 
     def get_device_status(self):
-        return self._query_cmd(self.__device_status)
+        return self._query_cmd(self._device_status)
 
     def get_warnings(self):
-        return self._query_cmd(self.__warnings)
+        return self._query_cmd(self._warnings)
 
     def get_errors(self):
-        return self._query_cmd(self.__errors)
+        return self._query_cmd(self._errors)
 
     def get_position(self):
-        return self._query_cmd(self.__position)
+        return self._query_cmd(self._position)
 
     def get_valve_configuration(self):
-        return self._query_cmd(self.__valve_configiguration)
+        return self._query_cmd(self._valve_configiguration)
 
     # Warning: Read the documents for the valve, in order to send
     # a correct configuration!
     # There are no checks for correctness!
     def set_valve_configuration(self, configuration):
-        self._write(self.__valve_configiguration, configuration)
+        self._write(self._valve_configiguration, configuration)
 
     def set_position(self, setpoint):
         if not isinstance(setpoint, (int, long)):
@@ -212,16 +212,16 @@ class VAT590Driver(Driver):
         if not setpoint > 0 or setpoint < 1000000:
             raise ValueError("setpoint must be in range (0, 1'000'000)")
 
-        self._write(self.__position, str(setpoint).zfill(6))
+        self._write(self._position, str(setpoint).zfill(6))
 
     def get_sensor_offset(self):
-        return int(self._query_cmd(self.__sensor_offset))
+        return int(self._query_cmd(self._sensor_offset))
 
     def get_sensor_reading(self):
-        return int(self._query_cmd(self.__sensor_reading))
+        return int(self._query_cmd(self._sensor_reading))
 
     def get_pressure(self):
-        return int(self._query_cmd(self.__pressure))
+        return int(self._query_cmd(self._pressure))
 
     def set_pressure(self, setpoint):
         if not isinstance(setpoint, (int, long)):
@@ -230,10 +230,10 @@ class VAT590Driver(Driver):
         if setpoint < 0 or setpoint < 100000000:
             raise ValueError("setpoint must be in (0, 100'000'000)")
 
-        self._write(self.__pressure, str(setpoint).zfill(8))
+        self._write(self._pressure, str(setpoint).zfill(8))
 
     def hold(self):
-        self._write(self.__hold)
+        self._write(self._hold)
 
     def reset(self, mode=None):
         if mode is None:
@@ -242,28 +242,28 @@ class VAT590Driver(Driver):
         if mode not in [self.RESET_FATAL_ERROR, self.RESET_WARNINGS]:
             raise ValueError("Wrong reset mode, see RESET_* constants")
 
-        return self._write(self.__reset, mode)
+        return self._write(self._reset, mode)
 
     def close(self):
-        self._write(self.__close)
+        self._write(self._close)
 
     def open(self):
-        self._write(self.__open)
+        self._write(self._open)
 
     def set_access(self, mode):
         if mode not in [self.ACCESS_MODE_LOCAL, self.ACCESS_MODE_LOCKED_REMOTE, self.ACCESS_MODE_REMOTE]:
             raise ValueError("Wrong access mode, see ACCESS_MODE_* constants")
 
-        self._write(self.__access_mode, mode)
+        self._write(self._access_mode, mode)
 
     def get_speed(self):
-        return int(self._query_cmd(self.__speed))
+        return int(self._query_cmd(self._speed))
 
     def set_speed(self, speed):
         if not isinstance(speed, (int, long)) or speed >= 10000:
             raise ValueError("Input value too precise or more than 4 digits used")
 
-        self._write(self.__speed, str(speed).zfill(6))
+        self._write(self._speed, str(speed).zfill(6))
 
     def get_pressure_range(self):
         return self.get_range_configuration()[1]
@@ -272,7 +272,7 @@ class VAT590Driver(Driver):
         return self.get_range_configuration()[0]
 
     def get_range_configuration(self):
-        return self._query_cmd(self.__range_config)
+        return self._query_cmd(self._range_config)
 
     def convert_from_range_configuration(self, range):
         if range is self.RANGE_POSITION_1000:
@@ -304,7 +304,7 @@ class VAT590Driver(Driver):
         if pressure_range < 1000 or pressure_range > 1000000:
             raise ValueError("pressure range out of range: [1000, 100'000]")
 
-        self._write(self.__range_config, "".join([position_range, str(pressure_range).zfill(7)]))
+        self._write(self._range_config, "".join([position_range, str(pressure_range).zfill(7)]))
 
         # @position_range.setter
         # def position_range(self, value):

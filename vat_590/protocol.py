@@ -76,6 +76,6 @@ class VAT590Protocol(Protocol):
     def clear(self, transport):
         while True:
             try:
-                transport.read(25)
+                transport.read_bytes(25)
             except Timeout:
                 return True

@@ -31,10 +31,17 @@ class VAT590Factory:
         logger.addHandler(fh)
         return logger
 
-    def create_valve(self, device='/dev/ttyUSB5', logger=None):
+    def create_argon_valve(self, device='/dev/ttyUSB5', logger=None):
         if logger is None:
             logger = self.get_logger()
 
         protocol = VAT590Protocol(logger=logger)
         return VAT590Driver(Serial(device, 9600, 7, 'E', 1, 0.2), protocol)
 
+    #TODO: set default device port.
+    def create_oxygen_valve(self, device=None, logger=None):
+        if logger is None:
+            logger = self.get_logger()
+
+        protocol = VAT590Protocol(logger=logger)
+        return VAT590Driver(Serial(device, 9600, 7, 'E', 1, 0.2), protocol)

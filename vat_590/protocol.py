@@ -1,5 +1,3 @@
-from slave.protocol import Protocol
-
 # Copyright (C) 2016, see AUTHORS.md
 #
 # This program is free software: you can redistribute it and/or modify
@@ -15,6 +13,8 @@ from slave.protocol import Protocol
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from slave.protocol import Protocol
+from slave.transport import Timeout
 
 class CommunicationError(Exception):
     pass
@@ -72,3 +72,10 @@ class VAT590Protocol(Protocol):
             if len(response) > 0:
                 self.logger.error('Received Unexpected response data: "%s"', response)
                 raise CommunicationError('Unexpected response data')
+
+    def clear(self, transport):
+        while True:
+            try:
+                transport.read(25)
+            except Timeout:
+                return True

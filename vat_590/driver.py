@@ -190,8 +190,8 @@ class VAT590Driver(object):
         if not isinstance(setpoint, (int, long)):
             raise TypeError("setpoint must be an integer")
 
-        if setpoint < 0 or setpoint < 100000000:
-            raise ValueError("setpoint must be in (0, 100'000'000)")
+        if setpoint < 0 or setpoint > 100000000:
+            raise ValueError("setpoint must be in (0, 100'000'000), given: %s" % str(setpoint))
 
         self._write(self._pressure, str(setpoint).zfill(8))
 

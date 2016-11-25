@@ -132,7 +132,9 @@ class VAT590Driver(object):
         return cmd.query(self._transport, self._protocol)
 
     def _write(self, cmd, *datas):
-        cmd = Command(write=cmd)
+	if not isinstance(cmd, Command):
+            cmd = Command(write=cmd)
+
         cmd.write(self._transport, self._protocol, *datas)
 
     def get_firmware_configuration(self):
@@ -196,7 +198,7 @@ class VAT590Driver(object):
         self._write(self._pressure, str(setpoint).zfill(8))
 
     def hold(self):
-        self._write(self._hold)
+        self._write(self._hold, '')
 
     def reset(self, mode=None):
         if mode is None:
@@ -208,10 +210,10 @@ class VAT590Driver(object):
         return self._write(self._reset, mode)
 
     def close(self):
-        self._write(self._close)
+        self._write(self._close, '')
 
     def open(self):
-        self._write(self._open)
+        self._write(self._open, '')
 
     def set_access(self, mode):
         if mode not in [self.ACCESS_MODE_LOCAL, self.ACCESS_MODE_LOCKED_REMOTE, self.ACCESS_MODE_REMOTE]:

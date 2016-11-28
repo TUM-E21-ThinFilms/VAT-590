@@ -71,7 +71,7 @@ class VAT590Protocol(Protocol):
             response = self.read_response(transport)
             if len(response) > 0:
                 self.logger.error('Received Unexpected response data: "%s"', repr(response))
-                raise CommunicationError('Unexpected response data')
+#                raise CommunicationError('Unexpected response data')
 
     def clear(self, transport):
         while True:

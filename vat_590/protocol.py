@@ -44,14 +44,14 @@ class VAT590Protocol(Protocol):
     def read_response(self, transport):
         try:
             resp = transport.read_until("\r\n")
-            self.logger.debug('Response: "%s"', resp)
+            self.logger.debug('Response: "%s"', repr(resp))
             return resp
         except:
             raise CommunicationError("Could not read response")
 
     def send_message(self, transport, raw_data):
         try:
-            self.logger.debug('Sending: "%s"', raw_data)
+            self.logger.debug('Sending: "%s"', repr(raw_data))
             transport.write(raw_data)
         except:
             raise CommunicationError("Could not send data")
@@ -70,7 +70,7 @@ class VAT590Protocol(Protocol):
             self.send_message(transport, message)
             response = self.read_response(transport)
             if len(response) > 0:
-                self.logger.error('Received Unexpected response data: "%s"', response)
+                self.logger.error('Received Unexpected response data: "%s"', repr(response))
                 raise CommunicationError('Unexpected response data')
 
     def clear(self, transport):

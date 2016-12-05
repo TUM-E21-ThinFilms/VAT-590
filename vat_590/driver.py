@@ -114,7 +114,7 @@ class VAT590Driver(object):
         self._identification = Command(('i:83', String))
         self._firmware_number = Command(('i:84', String))
         self._firmware_config = Command(('i:82', String))
-        self._pressure_alignment = Command(('c:6002', 'c:60', String))
+        self._pressure_alignment = Command('c:6002', 'c:60', String)
 
         # write only commands
         self._hold = ('H:', String)

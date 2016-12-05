@@ -114,6 +114,7 @@ class VAT590Driver(object):
         self._identification = Command(('i:83', String))
         self._firmware_number = Command(('i:84', String))
         self._firmware_config = Command(('i:82', String))
+        self._pressure_alignment = Command(('c:6002', 'c:60', String))
 
         # write only commands
         self._hold = ('H:', String)
@@ -132,7 +133,7 @@ class VAT590Driver(object):
         return cmd.query(self._transport, self._protocol)
 
     def _write(self, cmd, *datas):
-	if not isinstance(cmd, Command):
+        if not isinstance(cmd, Command):
             cmd = Command(write=cmd)
 
         cmd.write(self._transport, self._protocol, *datas)
@@ -270,3 +271,12 @@ class VAT590Driver(object):
             raise ValueError("pressure range out of range: [1000, 100'000]")
 
         self._write(self._range_config, "".join([position_range, str(pressure_range).zfill(7)]))
+
+    def set_pressure_alignment(self, pressure):
+        if not isinstance(setpoint, (int, long)):
+            raise TypeError("setpoint must be an integer")
+
+        if setpoint < 0 or setpoint > 100000000:
+            raise ValueError("setpoint must be in (0, 100'000'000), given: %s" % str(setpoint))
+
+        self._write(self._pressure_alignment, pressure)

@@ -69,7 +69,7 @@ class VAT590Driver(object):
         ])))
 
         self._assembly = Command('i:76', 'i:76', BitSequence([
-            (6, String),  # Position
+            (6, String()),  # Position
             (1, Mapping(PRESSURE_READING)),  # Pressure reading
             (7, String()),  # Pressure
             (1, Mapping(OPERATION_MODE)),  # Operation mode
@@ -84,7 +84,7 @@ class VAT590Driver(object):
             (1, Mapping(COMPRESSED_AIR_SUPPLY))  # Compressed air supply
         ])))
 
-        self._valve_configiguration = Command('i:04', 's:04', BitSequence([
+        self._valve_configuration = Command('i:04', 's:04', BitSequence([
             (1, Mapping(CLOSE_OPEN)),  # VALVE_POWER_UP
             (1, Mapping(CLOSE_OPEN)),  # VALVE_POWER_FAILURE
             (1, Mapping(NO_YES)),  # EXTERNAL_ISOLATION_VALVE_FUNCTION
@@ -106,8 +106,14 @@ class VAT590Driver(object):
             (7, String()),  # Pressure range
         ]))
 
-        self._sensor_reading = Command('i64', 'i64', String)
-        self._sensor_offset = Command('i:60', 'i60', String)
+	self._sensor_configuration = Command('i:01', 's:01', BitSequence([
+            (1, String()),
+            (1, String()),
+            (6, String())    
+        ]))
+
+        self._sensor_reading = Command('i:64', 'i:64', String)
+        self._sensor_offset = Command('i:60', 'i:60', String)
         self._speed = Command('i:68', 'V:', String)
         self._pressure = Command('P:', 'S:', String)
         self._position = Command('A:', 'R:', String)
@@ -115,6 +121,8 @@ class VAT590Driver(object):
         self._firmware_number = Command(('i:84', String))
         self._firmware_config = Command(('i:82', String))
         self._pressure_alignment = Command('c:6002', 'c:60', String)
+        self._zero = ('Z:', String)
+        self._learn = ('L:0', String)
 
         # write only commands
         self._hold = ('H:', String)
@@ -163,7 +171,7 @@ class VAT590Driver(object):
         return self._query(self._position)
 
     def get_valve_configuration(self):
-        return self._query(self._valve_configiguration)
+        return self._query(self._valve_configuration)
 
     # Warning: Read the documents for the valve, in order to send
     # a correct configuration!
@@ -175,7 +183,7 @@ class VAT590Driver(object):
         if not isinstance(setpoint, (int, long)):
             raise TypeError("setpoint must be an integer")
 
-        if not setpoint > 0 or setpoint < 1000000:
+        if setpoint < 0 or setpoint > 1000000:
             raise ValueError("setpoint must be in range (0, 1'000'000)")
 
         self._write(self._position, str(setpoint).zfill(6))
@@ -272,11 +280,33 @@ class VAT590Driver(object):
 
         self._write(self._range_config, "".join([position_range, str(pressure_range).zfill(7)]))
 
-    def set_pressure_alignment(self, pressure):
+    def set_pressure_alignment(self, setpoint):
         if not isinstance(setpoint, (int, long)):
             raise TypeError("setpoint must be an integer")
 
         if setpoint < 0 or setpoint > 100000000:
             raise ValueError("setpoint must be in (0, 100'000'000), given: %s" % str(setpoint))
 
-        self._write(self._pressure_alignment, pressure)
+        self._write(self._pressure_alignment, str(setpoint).zfill(8))
+
+    def zero(self):
+        self._write(self._zero, '')	
+
+    def learn(self, setpoint):
+        if not isinstance(setpoint, (int, long)):
+            raise TypeError("setpoint must be an integer")
+
+        if setpoint < 0 or setpoint > 100000000:
+            raise ValueError("setpoint must be in range (0, 100'000'000), given: %s" % str(setpoint))
+
+        self._write(self._learn, str(setpoint).zfill(8))
+        
+    def get_sensor_configuration(self):
+        return self._query(self._sensor_configuration)
+
+    def set_sensor_configuration(self, config):
+        if not len(config) == 3:
+            raise ValueError("config must be of format like `get_sensor_configuration`")
+
+        self._write(self._sensor_configuration, "".join(config))
+	

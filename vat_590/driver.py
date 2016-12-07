@@ -168,7 +168,7 @@ class VAT590Driver(object):
         return self._query(self._errors)
 
     def get_position(self):
-        return self._query(self._position)
+        return int(self._query(self._position))
 
     def get_valve_configuration(self):
         return self._query(self._valve_configuration)

@@ -16,8 +16,9 @@
 from slave.protocol import Protocol
 from slave.transport import Timeout
 
-class CommunicationError(Exception):
-    pass
+import e21_util
+from e21_util.lock import InterProcessTransportLock
+from e21_util.error import CommunicationError
 
 class VAT590Protocol(Protocol):
 
@@ -57,25 +58,28 @@ class VAT590Protocol(Protocol):
             raise CommunicationError("Could not send data")
 
     def query(self, transport, header, *data):
-        message = self.create_message(header, *data)
-        with transport:
-            self.send_message(transport, message)
-            response = self.read_response(transport)
+        with InterProcessTransportLock(transport):
+            message = self.create_message(header, *data)
+            with transport:
+                self.send_message(transport, message)
+                response = self.read_response(transport)
 
-        return self.parse_response(response, header)
+            return self.parse_response(response, header)
 
     def write(self, transport, header, *data):
-        message = self.create_message(header, *data)
-        with transport:
-            self.send_message(transport, message)
-            response = self.read_response(transport)
-            if len(response) > 0:
-                self.logger.error('Received Unexpected response data: "%s"', repr(response))
-#                raise CommunicationError('Unexpected response data')
+        with InterProcessTransportLock(transport):
+            message = self.create_message(header, *data)
+            with transport:
+                self.send_message(transport, message)
+                response = self.read_response(transport)
+                if len(response) > 0:
+                    self.logger.error('Received Unexpected response data: "%s"', repr(response))
+    #                raise CommunicationError('Unexpected response data')
 
     def clear(self, transport):
-        while True:
-            try:
-                transport.read_bytes(25)
-            except Timeout:
-                return True
+        with InterProcessTransportLock(transport):
+            while True:
+                try:
+                    transport.read_bytes(25)
+                except Timeout:
+                    return True

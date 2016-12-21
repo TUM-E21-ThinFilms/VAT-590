@@ -37,7 +37,7 @@ class VAT590Protocol(Protocol):
         response = response.decode(self.encoding)
 
         if not response.startswith(header[0]):
-            raise ValueError('Response header mismatch')
+            raise ValueError('Response header mismatch: received "' + str(response) + '" expected: "' + str(header[0]) + '"')
 
         response = response[len(header):]
         return response.split(None)

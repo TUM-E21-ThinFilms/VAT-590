@@ -21,10 +21,10 @@ from driver import VAT590Driver
 
 
 class VAT590Factory:
-    def get_logger(self):
+    def get_logger(self, type):
         logger = logging.getLogger('VAT 590 Series')
         logger.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - ' + str(type) + '- %(message)s')
         fh = logging.FileHandler('vat590.log')
         fh.setLevel(logging.DEBUG)
         fh.setFormatter(formatter)
@@ -33,15 +33,14 @@ class VAT590Factory:
 
     def create_argon_valve(self, device='/dev/ttyUSB5', logger=None):
         if logger is None:
-            logger = self.get_logger()
+            logger = self.get_logger('argon')
 
         protocol = VAT590Protocol(logger=logger)
         return VAT590Driver(Serial(device, 9600, 7, 'E', 1, 0.2), protocol)
 
-    #TODO: set default device port.
-    def create_oxygen_valve(self, device=None, logger=None):
+    def create_oxygen_valve(self, device='/dev/ttyUSB6', logger=None):
         if logger is None:
-            logger = self.get_logger()
+            logger = self.get_logger('oxygen')
 
         protocol = VAT590Protocol(logger=logger)
         return VAT590Driver(Serial(device, 9600, 7, 'E', 1, 0.2), protocol)

@@ -19,20 +19,19 @@ from protocol import VAT590Protocol
 from driver import VAT590Driver
 
 class VAT590Factory:
-    def get_logger(self):
-        return get_sputter_logger('VAT 590 Series', 'vat590.log')
+    def get_logger(self, type):
+        return get_sputter_logger('VAT 590 Series - '+ str(type), 'vat590.log')
 
     def create_argon_valve(self, device='/dev/ttyUSB5', logger=None):
         if logger is None:
-            logger = self.get_logger()
+            logger = self.get_logger('argon')
 
         protocol = VAT590Protocol(logger=logger)
         return VAT590Driver(Serial(device, 9600, 7, 'E', 1, 0.2), protocol)
 
-    #TODO: set default device port.
-    def create_oxygen_valve(self, device=None, logger=None):
+    def create_oxygen_valve(self, device='/dev/ttyUSB6', logger=None):
         if logger is None:
-            logger = self.get_logger()
+            logger = self.get_logger('oxygen')
 
         protocol = VAT590Protocol(logger=logger)
         return VAT590Driver(Serial(device, 9600, 7, 'E', 1, 0.2), protocol)

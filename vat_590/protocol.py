@@ -18,7 +18,7 @@ from slave.transport import Timeout
 
 import e21_util
 from e21_util.lock import InterProcessTransportLock
-from e21_util.error import CommunicationError
+from e21_util.error import CommunicationError, ErrorResponse
 
 class VAT590Protocol(Protocol):
 
@@ -35,6 +35,9 @@ class VAT590Protocol(Protocol):
 
     def parse_response(self, response, header):
         response = response.decode(self.encoding)
+
+        if response.startswith('E:'):
+            raise ErrorResponse(response)
 
         if not response.startswith(header[0]):
             raise ValueError('Response header mismatch')

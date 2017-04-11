@@ -13,23 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-
 from e21_util.transport import Serial
+from e21_util.logging import get_sputter_logger
 from protocol import VAT590Protocol
 from driver import VAT590Driver
 
-
 class VAT590Factory:
     def get_logger(self):
-        logger = logging.getLogger('VAT 590 Series')
-        logger.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        fh = logging.FileHandler('vat590.log')
-        fh.setLevel(logging.DEBUG)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-        return logger
+        return get_sputter_logger('VAT 590 Series', 'vat590.log')
 
     def create_argon_valve(self, device='/dev/ttyUSB5', logger=None):
         if logger is None:

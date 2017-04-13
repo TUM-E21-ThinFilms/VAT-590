@@ -106,7 +106,7 @@ class VAT590Driver(object):
             (7, String()),  # Pressure range
         ]))
 
-	self._sensor_configuration = Command('i:01', 's:01', BitSequence([
+        self._sensor_configuration = Command('i:01', 's:01', BitSequence([
             (1, String()),
             (1, String()),
             (6, String())    
@@ -120,7 +120,7 @@ class VAT590Driver(object):
         self._identification = Command(('i:83', String))
         self._firmware_number = Command(('i:84', String))
         self._firmware_config = Command(('i:82', String))
-        self._pressure_alignment = Command('c:6002', 'c:60', String)
+        self._pressure_alignment = Command('c:6002', 'c:6002', String)
         self._zero = ('Z:', String)
         self._learn = ('L:0', String)
 
@@ -307,6 +307,8 @@ class VAT590Driver(object):
     def set_sensor_configuration(self, config):
         if not len(config) == 3:
             raise ValueError("config must be of format like `get_sensor_configuration`")
-
+        # this creates an error in log file (Unexpected response 's:01') this error can be discarded
+        # Notice that the slave lib expects no response when 'setting' values
+        # But the VAT590 returns after a set-operation an response.
         self._write(self._sensor_configuration, "".join(config))
 	

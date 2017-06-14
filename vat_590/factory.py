@@ -15,6 +15,7 @@
 
 from e21_util.transport import Serial
 from e21_util.log import get_sputter_logger
+from e21_util.ports import Ports
 from protocol import VAT590Protocol
 from driver import VAT590Driver
 
@@ -22,16 +23,22 @@ class VAT590Factory:
     def get_logger(self, type):
         return get_sputter_logger('VAT 590 Series - '+ str(type), 'vat590.log')
 
-    def create_argon_valve(self, device='/dev/ttyUSB5', logger=None):
+    def create_argon_valve(self, device=None, logger=None):
         if logger is None:
             logger = self.get_logger('argon')
+
+        if device is None:
+            device = Ports().get_port(Ports.DEVICE_LEAK_VALVE_AR)
 
         protocol = VAT590Protocol(logger=logger)
         return VAT590Driver(Serial(device, 9600, 7, 'E', 1, 0.2), protocol)
 
-    def create_oxygen_valve(self, device='/dev/ttyUSB6', logger=None):
+    def create_oxygen_valve(self, device=None, logger=None):
         if logger is None:
             logger = self.get_logger('oxygen')
+
+        if device is None:
+            device = Ports().get_port(Ports.DEVICE_LEAK_VALVE_O2)
 
         protocol = VAT590Protocol(logger=logger)
         return VAT590Driver(Serial(device, 9600, 7, 'E', 1, 0.2), protocol)

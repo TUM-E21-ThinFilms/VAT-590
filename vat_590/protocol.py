@@ -23,6 +23,9 @@ class VAT590Protocol(Loggable):
     def __init__(self, transport, logger):
         super(VAT590Protocol, self).__init__(logger)
         assert isinstance(transport, AbstractTransport)
+
+        self._transport = transport
+
         self.encoding = 'ascii'
 
     def create_message(self, header, *data):

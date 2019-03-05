@@ -13,17 +13,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from slave.protocol import Protocol
-from slave.transport import Timeout
-
-import e21_util
 from e21_util.lock import InterProcessTransportLock
 from e21_util.error import CommunicationError, ErrorResponse
+from e21_util.serial_connection import AbstractTransport, SerialTimeoutException
+from e21_util.interface import Loggable
 
-class VAT590Protocol(Protocol):
+class VAT590Protocol(Loggable):
 
-    def __init__(self, logger=None):
-        self.logger = logger
+    def __init__(self, transport, logger):
+        super(VAT590Protocol, self).__init__(logger)
+        assert isinstance(transport, AbstractTransport)
         self.encoding = 'ascii'
 
     def create_message(self, header, *data):
@@ -45,44 +44,43 @@ class VAT590Protocol(Protocol):
         response = response[len(header):]
         return response.split(None)
 
-    def read_response(self, transport):
+    def read_response(self):
         try:
-            resp = transport.read_until("\r\n")
-            self.logger.debug('Response: "%s"', repr(resp))
+            # remove the last two bytes since they are just \r\n
+            resp = self._transport.read_until("\r\n")[0:-2]
+            self._logger.debug('Response: "%s"', repr(resp))
             return resp
         except:
             raise CommunicationError("Could not read response")
 
-    def send_message(self, transport, raw_data):
+    def send_message(self, raw_data):
         try:
-            self.logger.debug('Sending: "%s"', repr(raw_data))
-            transport.write(raw_data)
+            self._logger.debug('Sending: "%s"', repr(raw_data))
+            self._transport.write(raw_data)
         except:
             raise CommunicationError("Could not send data")
 
     def query(self, transport, header, *data):
-        with InterProcessTransportLock(transport):
+        with self._transport:
             message = self.create_message(header, *data)
-            with transport:
-                self.send_message(transport, message)
-                response = self.read_response(transport)
+            self.send_message(message)
+            response = self.read_response()
 
             return self.parse_response(response, header)
 
     def write(self, transport, header, *data):
-        with InterProcessTransportLock(transport):
+        with self._transport:
             message = self.create_message(header, *data)
-            with transport:
-                self.send_message(transport, message)
-                response = self.read_response(transport)
-                if len(response) > 0:
-                    self.logger.error('Received Unexpected response data: "%s"', repr(response))
+            self.send_message(message)
+            response = self.read_response()
+            if len(response) > 0:
+                self._logger.error('Received Unexpected response data: "%s"', repr(response))
     #                raise CommunicationError('Unexpected response data')
 
-    def clear(self, transport):
-        with InterProcessTransportLock(transport):
+    def clear(self):
+        with self._transport:
             while True:
                 try:
-                    transport.read_bytes(25)
-                except Timeout:
+                    self._transport.read_bytes(25)
+                except SerialTimeoutException:
                     return True

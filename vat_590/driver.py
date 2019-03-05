@@ -15,8 +15,9 @@
 
 from slave.driver import Driver, Command
 from slave.types import String, Mapping, BitSequence
-from protocol import VAT590Protocol
-from constants import *
+
+from vat_590.protocol import VAT590Protocol
+from vat_590.constants import *
 
 class VAT590Driver(object):
 
@@ -31,14 +32,13 @@ class VAT590Driver(object):
     RANGE_POSITION_10000 = '1'
     RANGE_POSITION_100000 = '2'
 
-    def __init__(self, transport, protocol=None):
+    def __init__(self, transport, protocol):
 
-        if protocol is None:
-            protocol = VAT590Protocol()
+        assert isinstance(protocol, VAT590Protocol)
+        protocol = VAT590Protocol()
 
         self._transport = transport
         self._protocol = protocol
-        #super(VAT590Driver, self)._init_(transport, protocol)
 
         self.PID_controller = Command(
             'i:02',
@@ -132,18 +132,20 @@ class VAT590Driver(object):
         self._access_mode = ('c:01', String)
 
     def clear(self):
-        self._protocol.clear(self._transport)
+        self._protocol.clear()
 
     def _query(self, cmd):
         if not isinstance(cmd, Command):
             raise TypeError("Can only query on Command")
 
+        # TODO: remove self._transport from the call
         return cmd.query(self._transport, self._protocol)
 
     def _write(self, cmd, *datas):
         if not isinstance(cmd, Command):
             cmd = Command(write=cmd)
 
+        # TODO: remove self._transport from the call
         cmd.write(self._transport, self._protocol, *datas)
 
     def get_firmware_configuration(self):

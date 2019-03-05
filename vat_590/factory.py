@@ -13,32 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from e21_util.transport import Serial
-from e21_util.log import get_sputter_logger
-from e21_util.ports import Ports
-from protocol import VAT590Protocol
-from driver import VAT590Driver
 
-class VAT590Factory:
-    def get_logger(self, type):
-        return get_sputter_logger('VAT 590 Series - '+ str(type), 'vat590.log')
+from vat_590.protocol import VAT590Protocol
+from vat_590.driver import VAT590Driver
 
-    def create_argon_valve(self, device=None, logger=None):
-        if logger is None:
-            logger = self.get_logger('argon')
-
-        if device is None:
-            device = Ports().get_port(Ports.DEVICE_LEAK_VALVE_AR)
-
-        protocol = VAT590Protocol(logger=logger)
-        return VAT590Driver(Serial(device, 9600, 7, 'E', 1, 0.2), protocol)
-
-    def create_oxygen_valve(self, device=None, logger=None):
-        if logger is None:
-            logger = self.get_logger('oxygen')
-
-        if device is None:
-            device = Ports().get_port(Ports.DEVICE_LEAK_VALVE_O2)
-
-        protocol = VAT590Protocol(logger=logger)
-        return VAT590Driver(Serial(device, 9600, 7, 'E', 1, 0.2), protocol)
+class VAT590Factory(object):
+    @staticmethod
+    def create(transport, logger):
+        return VAT590Driver(transport, VAT590Protocol(transport, logger))

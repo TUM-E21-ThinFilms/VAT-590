@@ -33,9 +33,7 @@ class VAT590Driver(object):
     RANGE_POSITION_100000 = '2'
 
     def __init__(self, transport, protocol):
-
         assert isinstance(protocol, VAT590Protocol)
-        protocol = VAT590Protocol()
 
         self._transport = transport
         self._protocol = protocol
